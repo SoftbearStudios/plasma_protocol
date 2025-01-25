@@ -1,6 +1,6 @@
-# Ursa Crate
+# plasma_protocol Crate
 
-Ursa is a small (5k line) SDK used by game servers to communicate with Plasma web services.
+`plasma_protocol` is a small (5k line) SDK used by game servers to communicate with (proprietary) Plasma web services.
 
 ## Prerequisites
 
