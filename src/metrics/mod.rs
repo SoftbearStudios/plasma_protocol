@@ -5,6 +5,7 @@ mod continuous;
 mod discrete;
 mod engine;
 mod histogram;
+mod navigation;
 mod ratio;
 
 pub use continuous::{
@@ -18,4 +19,5 @@ pub use engine::{
     EngineMetrics, EngineMetricsDataPointDto, MetricAccumulator, MetricFilter, MetricsSummaryDto,
 };
 pub use histogram::HistogramMetricAccumulator;
+pub use navigation::NavigationMetricsDto;
 pub use ratio::{RatioMetricAccumulator, RatioMetricSummary};

@@ -17,6 +17,13 @@ pub struct RatioMetricAccumulator {
 }
 
 impl RatioMetricAccumulator {
+    pub fn new(condition: bool) -> Self {
+        Self {
+            count: if condition { 1 } else { 0 },
+            total: 1,
+        }
+    }
+
     pub fn push(&mut self, condition: bool) {
         debug_assert!(self.count <= self.total);
         if self.total < u32::MAX {

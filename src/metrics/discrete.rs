@@ -20,6 +20,10 @@ pub struct DiscreteMetricSummary {
 }
 
 impl DiscreteMetricAccumulator {
+    pub fn new(sample: u32) -> Self {
+        Self { total: sample }
+    }
+
     pub fn increment(&mut self) {
         self.add_multiple(1);
     }

@@ -3,8 +3,7 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::id::PlayerId;
-    use crate::{InvitationId, ServerNumber};
+    use crate::{InvitationId, PlayerId, ServerNumber};
     use std::str::FromStr;
 
     /*#[test]

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2024 Softbear, Inc.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use std::num::NonZeroU32;
+mod dto;
 
-pub type GameFence = NonZeroU32;
+pub use dto::{ChatMessage, LanguageDto, LeaderboardScoreDto};

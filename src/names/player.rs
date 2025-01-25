@@ -4,8 +4,6 @@
 use crate::{impl_wrapper_from_str, impl_wrapper_str, slice_up_to_array_string, slice_up_to_chars};
 use arrayvec::ArrayString;
 use bitcode::{Decode, Encode};
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 use serde::{Deserialize, Serialize};
 
 #[derive(
@@ -80,40 +78,6 @@ impl PlayerAlias {
         #[cfg(feature = "server")]
         debug_assert_eq!(sliced, crate::trim_and_slice_up_to_array_string(str));
         Self(sliced)
-    }
-
-    pub fn random_guest() -> Self {
-        let options = [
-            "Guest",
-            "BestGuest",
-            "BestGuestern",
-            "Guestament",
-            "Guestavo",
-            "Guestbound",
-            "GuestHouse",
-            "Guestify",
-            "GuestInPeace",
-            "Guestnut",
-            "GuestWestern",
-            "Proguest",
-            "BlessedGuest",
-            "EnderGuest",
-            "GuestControl",
-            "SafetyGuest",
-            "CourtGuester",
-            "Southguest",
-            "BirdsGuest",
-            "WildGuest",
-            "AcidGuest",
-            "Guestival",
-            "Lifeguest",
-            "Guestimate",
-            "Guesture",
-            "Sugguest",
-            "Diguest",
-            "Maniguest",
-        ];
-        Self::new_unsanitized(options.choose(&mut thread_rng()).unwrap())
     }
 
     #[cfg(feature = "server")]

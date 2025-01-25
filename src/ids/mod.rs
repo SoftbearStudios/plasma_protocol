@@ -3,7 +3,6 @@
 
 mod arena;
 mod chat;
-mod fence;
 mod game;
 mod language;
 mod metrics;
@@ -17,7 +16,6 @@ mod visitor;
 
 pub use arena::{ArenaId, ArenaQuery, ArenaToken, InvalidArenaId};
 pub use chat::{ChatId, InvalidChatId, MessageNumber};
-pub use fence::GameFence;
 pub use game::{GameId, InvalidInvitationId, InvitationId};
 pub use language::LanguageId;
 pub use metrics::{InvalidRegionId, LifecycleId, PeriodId, RegionId, UserAgentId};

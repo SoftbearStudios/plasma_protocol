@@ -7,6 +7,7 @@
 #![feature(let_chains)]
 
 mod claims;
+mod client;
 mod ids;
 mod metrics;
 mod names;
@@ -16,6 +17,7 @@ mod quest;
 mod serde_util;
 
 pub use claims::*;
+pub use client::*;
 pub use ids::*;
 pub use metrics::*;
 pub use names::*;

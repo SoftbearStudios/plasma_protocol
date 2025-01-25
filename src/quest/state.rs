@@ -3,8 +3,8 @@
 
 use super::QuestEventDto;
 use crate::{
-    is_default, ArenaId, CohortId, LanguageId, PlayerAlias, Referrer, RegionId, ServerId,
-    UserAgentId,
+    is_default, ArenaId, CohortId, LanguageId, LifecycleId, NavigationMetricsDto, PlayerAlias,
+    Referrer, RegionId, ServerId, UserAgentId,
 };
 use bitcode::{Decode, Encode};
 use cub::NonZeroUnixMillis;
@@ -28,6 +28,10 @@ pub struct QuestSampleDto {
     pub user_agent_id: Option<UserAgentId>,
     #[serde(default, skip_serializing_if = "is_default")]
     pub language_id: LanguageId,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub lifecycle_id: Option<LifecycleId>,
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub navigation: NavigationMetricsDto,
     /// Server where the quest began.
     pub server_id: ServerId,
     /// Arena where the quest began.

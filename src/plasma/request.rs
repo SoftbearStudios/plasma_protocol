@@ -4,7 +4,7 @@ use super::{ChatRecipient, ClaimUpdateDto, RealmHeartbeat, ServerLogDto};
 use crate::{
     is_default, ArenaId, ArenaToken, ChatId, ClientHash, EngineMetrics, GameId,
     LeaderboardScoreDto, MetricFilter, NonZeroUnixMillis, PlayerAlias, PlayerId, QuestSampleDto,
-    RealmId, ServerId, SessionToken, TeamName, TeamToken, UserId, VisitorId,
+    RealmId, ServerId, SessionToken, TeamName, TeamToken, VisitorId,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashSet};
@@ -43,7 +43,7 @@ pub enum PlasmaRequest {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum PlasmaRequestV1 {
     /// Authenticates player as follows: if player is signed in, Plasma sends
-    /// [`Player`] in response to return the player's `user_id`, claims, etc.
+    /// [`Player`] in response to return the player's `visitor_id`, claims, etc.
     /// If player is not signed in, Plasma sends [`Claims`] to return claims.
     AuthenticatePlayer {
         /// Navigational ID which includes realm, tier, etc.
@@ -95,9 +95,8 @@ pub enum PlasmaRequestV1 {
         alias: PlayerAlias,
         /// ID of the offensive chat message.
         chat_id: ChatId,
-        /// User ID of the reporter/moderator or None if the user is not signed in.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        user_id: Option<UserId>,
+        /// Visitor ID of the reporter/moderator.
+        visitor_id: VisitorId,
     },
     /// Set (or overwrite) chat policy for the specified realm.
     ModerateChat {
@@ -113,9 +112,8 @@ pub enum PlasmaRequestV1 {
         /// Implement "slow mode" for the next X minutes. If `None`, has no effect.
         #[serde(default, skip_serializing_if = "is_default")]
         slow_mode: Option<u32>,
-        /// User ID of the moderator or `None` if the user is not signed in.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        user_id: Option<UserId>,
+        /// Visitor ID of the moderator.
+        visitor_id: VisitorId,
     },
     /// A server has started running.  Registers the [`game_id`] and [`server_id`]
     /// provided when opening web socket.
@@ -123,7 +121,11 @@ pub enum PlasmaRequestV1 {
     /// Plasma sends [`Referrers`] and [`Snippets`] in response.
     //
     // {} is for backward compatibility
-    RegisterServer {},
+    RegisterServer {
+        // TODO: this is an Option for backward compatibility but eventually won't be an Option.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        date_started: Option<NonZeroUnixMillis>,
+    },
     /// Releases team name.  No response is sent.
     ReleaseTeamName {
         /// Arena ID of releasor.
@@ -188,10 +190,7 @@ pub enum PlasmaRequestV1 {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         team_name: Option<TeamName>,
         timestamp: NonZeroUnixMillis,
-        /// User ID of the sender or None if the user is not signed in.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        user_id: Option<UserId>,
-        /// Visitor ID of the sender or None if unknown or not applicable.
+        /// Visitor ID of the sender or None if session/auth failed due to network issue.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         visitor_id: Option<VisitorId>,
         /// Chat recipient.

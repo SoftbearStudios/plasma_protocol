@@ -100,6 +100,16 @@ pub struct ContinuousExtremaMetricAccumulator {
 }
 
 impl ContinuousExtremaMetricAccumulator {
+    pub fn new(sample: f32) -> Self {
+        Self {
+            count: 1,
+            min: sample,
+            max: sample,
+            squared_total: (sample as f64).powi(2),
+            total: sample as f64,
+        }
+    }
+
     pub fn push(&mut self, sample: f32) {
         if self.count < u32::MAX {
             if self.count == 0 {

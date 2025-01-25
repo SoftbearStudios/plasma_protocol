@@ -2,23 +2,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 use crate::{
-    is_default, ArenaId, ClaimSubset, CohortId, GameId, LanguageId, NonZeroUnixMillis, PlayerAlias,
-    PlayerId, RankNumber, Referrer, RegionId, ServerId, ServerNumber, ServerToken, UserAgentId,
-    UserId, VisitorId,
+    impl_wrapper_str, is_default, ArenaId, ClaimSubset, CohortId, DomainName, GameId, LanguageDto,
+    LanguageId, NonZeroUnixMillis, PlayerId, Referrer, RegionId, ServerId, ServerNumber,
+    ServerToken, UserAgentId, UserId, VisitorId,
 };
-use bitcode::{Decode, Encode};
+use arrayvec::ArrayString;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 use std::fmt::{self, Debug, Formatter};
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Encode, Decode)]
-#[serde(untagged)]
-pub enum ChatMessage {
-    /// Serializes to a JSON string, for backwards compatibility.
-    Raw(String),
-    Structured(StructuredChatMessage),
-}
+use std::str::FromStr;
 
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ChatRecipient {
@@ -42,40 +34,13 @@ pub struct ClaimUpdateDto {
     pub visitor_id: VisitorId,
 }
 
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct DomainDto {
     /// mazean.com is primary
     /// foo.com means mazean.foo.com is alternative
-    pub domain: Box<str>,
+    pub domain: DomainName,
     pub certificate: Box<str>,
     pub private_key: Box<str>,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct LanguageDto {
-    pub language_id: LanguageId,
-    pub language_name: String,
-}
-
-/// The Leaderboard Data Transfer Object (DTO) is a single line on a leaderboard.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, Encode, Decode)]
-pub struct LeaderboardScoreDto {
-    pub alias: PlayerAlias,
-    pub score: u32,
-}
-
-impl PartialOrd for LeaderboardScoreDto {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for LeaderboardScoreDto {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.score
-            .cmp(&other.score)
-            .then_with(|| self.alias.cmp(&other.alias))
-    }
 }
 
 /// Mirrors log::Level.
@@ -102,6 +67,16 @@ impl Default for RealmAcl {
     }
 }
 
+#[derive(Clone, Copy, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ServerFailureDiagnostic(ArrayString<60>);
+impl_wrapper_str!(ServerFailureDiagnostic);
+
+impl ServerFailureDiagnostic {
+    pub fn new(s: &str) -> Option<Self> {
+        ArrayString::from_str(s).ok().map(Self)
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ServerLogDto {
     /// Milliseconds.
@@ -114,7 +89,7 @@ pub struct ServerLogDto {
     pub message: String,
 }
 
-#[derive(Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ServerRole {
     /// Server is being deleted from virtual hosting and database.
     Deleting,
@@ -127,6 +102,8 @@ pub enum ServerRole {
     ///   it will change to 'Deleting'.
     Failed {
         date_failed: NonZeroUnixMillis,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        diagnostic: Option<ServerFailureDiagnostic>,
         #[serde(skip_serializing_if = "Option::is_none")]
         redirect: Option<ServerNumber>,
     },
@@ -260,35 +237,6 @@ pub struct SnippetCriteria {
     /// If matched, keep going.
     #[serde(default, skip_serializing_if = "is_default")]
     pub fallthrough: bool,
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Encode, Decode)]
-pub enum StructuredChatMessage {
-    /// Migrate to this once all game clients support it. Then, replace `ChatMessage` with `Self`.
-    Raw { message: String },
-    Welcome {
-        server_number: ServerNumber,
-        #[serde(default, skip_serializing_if = "is_default")]
-        arena_id: ArenaId,
-    },
-    Join {
-        /// The alias of the joiner (different from the alias of the join message sender).
-        alias: PlayerAlias,
-        /// Whether the alias matches the joiner's unique nickname.
-        #[serde(default, skip_serializing_if = "is_default")]
-        authentic: bool,
-        /// The visitor id of the joiner (different from the visitor id of the join message sender).
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        visitor_id: Option<VisitorId>,
-        /// The rank of the joiner.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        rank: Option<RankNumber>,
-        /// Where they joined.
-        server_number: ServerNumber,
-        /// Where they joined.
-        #[serde(default, skip_serializing_if = "is_default")]
-        arena_id: ArenaId,
-    },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

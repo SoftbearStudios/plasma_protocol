@@ -1,7 +1,6 @@
 [package]
-name = "core_protocol"
-workspace = ".."
-version = "0.1.0"
+name = "plasma_protocol"
+version = "0.1.2"
 authors = ["Softbear, Inc."]
 edition = "2021"
 license = "AGPL-3.0-or-later"
@@ -10,7 +9,9 @@ license = "AGPL-3.0-or-later"
 actix = { version = "0.13", optional = true }
 arrayvec = { version = "0.7", features = ["serde"] }
 bitcode = {version = "0.6.3", features = ["arrayvec", "glam"], git = "https://github.com/SoftbearStudios/bitcode" }
-cub = { default-features = false, features = [ "bitcode", "time_id" ], git = "ssh://git@gitlab.com/softbeargames/cub.git", version = "0.1.6" }
+cub = { default-features = false, features = [ "bitcode", "time_id" ], git = "https://github.com/SoftbearStudios/cub", version = "0.1.10" }
+#cub = { default-features = false, features = [ "bitcode", "time_id" ], git = "ssh://git@gitlab.com/softbeargames/cub.git", version = "0.1.10", rev = "ea3d1479dc96710c4431fecc8e41d017bdf0c584" }
+#cub = { default-features = false, features = [ "bitcode", "time_id" ], path = "../../cub", version = "0" }
 derive_more = { version = "0.99", default-features = false, features = ["add"] }
 hyperloglog = { git = "https://github.com/finnbear/hyperloglog", features = ["serde"] }
 log = { version = "0.4", optional = true }

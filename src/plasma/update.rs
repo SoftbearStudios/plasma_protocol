@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2024 Softbear, Inc.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-use super::{ChatRecipient, DomainDto, ServerRole, ServerUseTopology, Snippet};
+use super::{ChatRecipient, ClaimUpdateDto, DomainDto, ServerRole, ServerUseTopology, Snippet};
 use crate::{
-    is_default, ArenaId, ArenaToken, ChatId, ChatMessage, ClaimUpdateDto, LeaderboardScoreDto,
-    NickName, PeriodId, PlayerAlias, PlayerId, RealmId, Referrer, ServerId, SessionToken, TeamName,
-    TeamToken, VisitorId,
+    is_default, ArenaId, ArenaToken, ChatId, ChatMessage, LeaderboardScoreDto, NickName, PeriodId,
+    PlayerAlias, PlayerId, RealmId, Referrer, ServerId, SessionToken, TeamName, TeamToken,
+    VisitorId,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -97,6 +97,9 @@ pub enum PlasmaUpdateV1 {
     },
     /// Sent for players after [`AuthenticatePlayer`].  For backward compatibility, only signed in players.
     Player {
+        /// Player should be included in active heartbeat e.g. because they are a user.
+        #[serde(default, skip_serializing_if = "is_default")]
+        active_heartbeat: bool,
         /// True if player has in-game admin priviledges.
         #[serde(default, skip_serializing_if = "is_default")]
         admin: bool,
@@ -118,7 +121,7 @@ pub enum PlasmaUpdateV1 {
         player_id: PlayerId,
         /// The `session_token` that was used by `AuthenticatePlayer`.
         session_token: SessionToken,
-        /// Visitor User ID of a signed in player.  For backward compatibility, always `Some`.
+        /// Visitor ID of player.
         visitor_id: VisitorId,
     },
     Quests {

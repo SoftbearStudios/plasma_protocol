@@ -27,11 +27,13 @@ pub trait MetricAccumulator: Sized + Add + Default {
 pub struct MetricsSummaryDto {
     pub abuse_reports: <DiscreteMetricAccumulator as MetricAccumulator>::Summary,
     pub actives_per_ip_histogram: <HistogramMetricAccumulator<10> as MetricAccumulator>::Summary,
+    pub alt_domain: <RatioMetricAccumulator as MetricAccumulator>::Summary,
     pub arenas_cached: <DiscreteMetricAccumulator as MetricAccumulator>::Summary,
     pub bandwidth_rx: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub bandwidth_tx: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub banner_ads: <DiscreteMetricAccumulator as MetricAccumulator>::Summary,
     pub bounce: <RatioMetricAccumulator as MetricAccumulator>::Summary,
+    pub complain: <RatioMetricAccumulator as MetricAccumulator>::Summary,
     pub concurrent: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub connections: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub connections_per_ip_histogram:
@@ -40,9 +42,12 @@ pub struct MetricsSummaryDto {
     pub cpu: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub cpu_steal: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub crashes: <DiscreteMetricAccumulator as MetricAccumulator>::Summary,
+    pub dns: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
+    pub dom: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub entities: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub flop: <RatioMetricAccumulator as MetricAccumulator>::Summary,
     pub fps: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
+    pub http: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub invited: <RatioMetricAccumulator as MetricAccumulator>::Summary,
     pub invitations_cached: <DiscreteMetricAccumulator as MetricAccumulator>::Summary,
     pub low_fps: <RatioMetricAccumulator as MetricAccumulator>::Summary,
@@ -65,7 +70,9 @@ pub struct MetricsSummaryDto {
     pub sessions_cached: <DiscreteMetricAccumulator as MetricAccumulator>::Summary,
     pub spt: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub tasks: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
+    pub tcp: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub teamed: <RatioMetricAccumulator as MetricAccumulator>::Summary,
+    pub tls: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub toxicity: <RatioMetricAccumulator as MetricAccumulator>::Summary,
     pub tps: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
     pub uptime: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::Summary,
@@ -79,11 +86,13 @@ pub struct MetricsSummaryDto {
 pub struct EngineMetricsDataPointDto {
     pub abuse_reports: <DiscreteMetricAccumulator as MetricAccumulator>::DataPoint,
     pub actives_per_ip_histogram: <HistogramMetricAccumulator<10> as MetricAccumulator>::DataPoint,
+    pub alt_domain: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
     pub arenas_cached: <DiscreteMetricAccumulator as MetricAccumulator>::DataPoint,
     pub bandwidth_rx: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub bandwidth_tx: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub banner_ads: <DiscreteMetricAccumulator as MetricAccumulator>::DataPoint,
     pub bounce: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
+    pub complain: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
     pub concurrent: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub connections: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub connections_per_ip_histogram:
@@ -92,9 +101,12 @@ pub struct EngineMetricsDataPointDto {
     pub cpu: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub cpu_steal: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub crashes: <DiscreteMetricAccumulator as MetricAccumulator>::DataPoint,
+    pub dns: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
+    pub dom: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub entities: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub flop: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
     pub fps: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
+    pub http: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub invited: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
     pub invitations_cached: <DiscreteMetricAccumulator as MetricAccumulator>::DataPoint,
     pub low_fps: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
@@ -118,7 +130,9 @@ pub struct EngineMetricsDataPointDto {
     pub sessions_cached: <DiscreteMetricAccumulator as MetricAccumulator>::DataPoint,
     pub spt: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub tasks: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
+    pub tcp: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub teamed: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
+    pub tls: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub toxicity: <RatioMetricAccumulator as MetricAccumulator>::DataPoint,
     pub tps: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
     pub uptime: <ContinuousExtremaMetricAccumulator as MetricAccumulator>::DataPoint,
@@ -146,6 +160,9 @@ pub struct EngineMetrics {
     /// How many active clients on the game server process were permitted, per IP.
     #[serde(default, skip_serializing_if = "is_default")]
     pub actives_per_ip_histogram: HistogramMetricAccumulator<10>,
+    /// Ratio of visitors via an alternative domain.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub alt_domain: RatioMetricAccumulator,
     /// How many arenas are in cache.
     #[serde(default, skip_serializing_if = "is_default")]
     pub arenas_cached: DiscreteMetricAccumulator,
@@ -161,6 +178,9 @@ pub struct EngineMetrics {
     /// Ratio of new players that leave without ever playing.
     #[serde(default, skip_serializing_if = "is_default")]
     pub bounce: RatioMetricAccumulator,
+    /// Ratio of players who complained in chat.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub complain: RatioMetricAccumulator,
     /// How many concurrent players.
     #[serde(default, skip_serializing_if = "is_default")]
     pub concurrent: ContinuousExtremaMetricAccumulator,
@@ -182,12 +202,27 @@ pub struct EngineMetrics {
     /// Client crashes.
     #[serde(default, skip_serializing_if = "is_default")]
     pub crashes: DiscreteMetricAccumulator,
+    /// Milliseconds taken by DNS lookup.
+    ///
+    /// In `PerformanceNavigationTiming` terms, this is `domainLookupEnd` - `domainLookupStart`.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub dns: ContinuousExtremaMetricAccumulator,
+    /// Milliseconds from browser DOM loading start to finish.
+    ///
+    /// In `PerformanceNavigationTiming` terms, this is `loadEventEnd` - `domInteractive`.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub dom: ContinuousExtremaMetricAccumulator,
     /// Ratio of new players that play only once and leave quickly.
     #[serde(default, skip_serializing_if = "is_default")]
     pub flop: RatioMetricAccumulator,
     /// Client frames per second.
     #[serde(default, skip_serializing_if = "is_default")]
     pub fps: ContinuousExtremaMetricAccumulator,
+    /// Milliseconds for initial HTTP request and response.
+    ///
+    /// In `PerformanceNavigationTiming` terms, this is `responseEnd` - `requestStart`.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub http: ContinuousExtremaMetricAccumulator,
     /// Ratio of new players who were invited to new players who were not.
     #[serde(default, skip_serializing_if = "is_default")]
     pub invited: RatioMetricAccumulator,
@@ -254,9 +289,19 @@ pub struct EngineMetrics {
     /// How many async runtime tasks are active.
     #[serde(default, skip_serializing_if = "is_default")]
     pub tasks: ContinuousExtremaMetricAccumulator,
+    /// Milliseconds to establish a TCP connection.
+    ///
+    /// In `PerformanceNavigationTiming` terms, this is min(`connnectEnd`, `secureConnectionStart`) - `connectStart`.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub tcp: ContinuousExtremaMetricAccumulator,
     /// Ratio of plays that end team-less to plays that don't.
     #[serde(default, skip_serializing_if = "is_default")]
     pub teamed: RatioMetricAccumulator,
+    /// Milliseconds to establish TLS.
+    ///
+    /// In `PerformanceNavigationTiming` terms, this is `connectEnd` - `secureConnectionStart`.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub tls: ContinuousExtremaMetricAccumulator,
     /// Ratio of inappropriate messages to total.
     #[serde(default, skip_serializing_if = "is_default")]
     pub toxicity: RatioMetricAccumulator,
@@ -301,11 +346,13 @@ impl EngineMetrics {
             // Fields
             abuse_reports,
             actives_per_ip_histogram,
+            alt_domain,
             arenas_cached,
             bandwidth_rx,
             bandwidth_tx,
             banner_ads,
             bounce,
+            complain,
             concurrent,
             connections,
             connections_per_ip_histogram,
@@ -313,9 +360,12 @@ impl EngineMetrics {
             cpu,
             cpu_steal,
             crashes,
+            dns,
+            dom,
             entities,
             flop,
             fps,
+            http,
             invited,
             invitations_cached,
             low_fps,
@@ -338,7 +388,9 @@ impl EngineMetrics {
             sessions_cached,
             spt,
             tasks,
+            tcp,
             teamed,
+            tls,
             toxicity,
             tps,
             uptime,
@@ -357,11 +409,13 @@ impl EngineMetrics {
             // Fields.
             abuse_reports,
             actives_per_ip_histogram,
+            alt_domain,
             arenas_cached,
             bandwidth_rx,
             bandwidth_tx,
             banner_ads,
             bounce,
+            complain,
             concurrent,
             connections,
             connections_per_ip_histogram,
@@ -369,9 +423,12 @@ impl EngineMetrics {
             cpu,
             cpu_steal,
             crashes,
+            dns,
+            dom,
             entities,
             flop,
             fps,
+            http,
             invited,
             invitations_cached,
             low_fps,
@@ -394,7 +451,9 @@ impl EngineMetrics {
             sessions_cached,
             spt,
             tasks,
+            tcp,
             teamed,
+            tls,
             toxicity,
             tps,
             uptime,
